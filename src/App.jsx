@@ -5,11 +5,27 @@ import Dashboard from './components/Dashboard'
 import FormEditor from './components/FormEditor'
 import Settings from './components/Settings'
 import SharedView from './components/SharedView'
+import LoginPage from './components/LoginPage'
+
+const SESSION_KEY = 'giros_session'
 
 export default function App() {
-  const [page, setPage] = useState('dashboard') // Default is dashboard
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)) } catch { return null }
+  })
+  const [page, setPage] = useState('dashboard')
   const [sharedId, setSharedId] = useState(null)
   const [isPublicForm, setIsPublicForm] = useState(false)
+
+  function handleLogin(userData) {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(userData))
+    setUser(userData)
+  }
+
+  function handleLogout() {
+    sessionStorage.removeItem(SESSION_KEY)
+    setUser(null)
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -49,6 +65,10 @@ export default function App() {
     }
   }, [])
 
+  if (!user && !isPublicForm) {
+    return <LoginPage onLogin={handleLogin} />
+  }
+
   if (isPublicForm) {
     return (
       <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: '40px 20px', display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -60,7 +80,7 @@ export default function App() {
   }
 
   return (
-    <Layout page={page} setPage={setPage}>
+    <Layout page={page} setPage={setPage} user={user} onLogout={handleLogout}>
       {page === 'form'      && <FormPage setPage={setPage} isPublic={false} />}
       {page === 'dashboard' && <Dashboard setPage={setPage} />}
       {page === 'editor'    && <FormEditor setPage={setPage} />}
