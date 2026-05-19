@@ -1077,29 +1077,6 @@ tr:last-child td {
   100% { opacity: 0;    transform: translateY(-30px); }
 }
 
-/* Bottom bars */
-.login-bars {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 110px;
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  padding: 0 4px;
-  overflow: hidden;
-}
-
-.login-bar {
-  flex: 1;
-  border-radius: 2px 2px 0 0;
-  opacity: 0.55;
-  animation: bar-pulse ease-in-out infinite alternate;
-}
-
-@keyframes bar-pulse {
-  from { transform: scaleY(0.55); opacity: 0.35; }
-  to   { transform: scaleY(1);    opacity: 0.65; }
-}
 
 /* ── Card ── */
 .login-card {

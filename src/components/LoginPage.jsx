@@ -21,12 +21,6 @@ const FLOATING_WORDS = [
   { text: 'Mejora continua', x: 35, y: 82, delay: 0.5, dur: 25 },
 ]
 
-const BARS = Array.from({ length: 52 }, (_, i) => ({
-  h: 20 + Math.random() * 80,
-  hue: 160 + Math.floor(Math.random() * 80),
-  delay: (i * 0.07).toFixed(2),
-  dur: (1.4 + Math.random() * 1.2).toFixed(2),
-}))
 
 export default function LoginPage({ onLogin }) {
   const [email, setEmail]       = useState('')
@@ -89,21 +83,6 @@ export default function LoginPage({ onLogin }) {
           </span>
         ))}
 
-        {/* Bottom bars */}
-        <div className="login-bars">
-          {BARS.map((b, i) => (
-            <div
-              key={i}
-              className="login-bar"
-              style={{
-                height: `${b.h}%`,
-                background: `hsl(${b.hue}, 65%, 45%)`,
-                animationDelay: `${b.delay}s`,
-                animationDuration: `${b.dur}s`,
-              }}
-            />
-          ))}
-        </div>
       </div>
 
       {/* ── Login card ── */}
