@@ -121,9 +121,7 @@ h1, h2, h3, h4, .sidebar-logo h1 {
 }
 
 .sidebar-logo h1 span {
-  background: linear-gradient(135deg, var(--xul-red) 0%, #e05a55 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #fff;
 }
 
 .sidebar-logo p {

@@ -5,14 +5,70 @@ function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 }
 
+function SuccessModal({ link, onClose }) {
+  const [copied, setCopied] = useState(false)
+
+  function handleCopy() {
+    navigator.clipboard.writeText(link)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+
+  function handlePreview() {
+    window.open(link, '_blank', 'noopener,noreferrer')
+  }
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal" style={{ maxWidth: 480 }}>
+        <div className="modal-body" style={{ textAlign: 'center', padding: '40px 32px 28px' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+            <svg fill="none" viewBox="0 0 24 24" stroke="var(--success)" strokeWidth={2.5} style={{ width: 32, height: 32 }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-heading)', marginBottom: 8 }}>¡Formulario guardado!</h3>
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
+            El diseño se guardó con éxito y se generó un nuevo enlace para compartir.
+          </p>
+          <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input
+              type="text"
+              readOnly
+              value={link}
+              onClick={e => e.target.select()}
+              style={{ flex: 1, background: 'none', border: 'none', fontFamily: 'monospace', fontSize: 12, color: 'var(--text-muted)', outline: 'none', cursor: 'text' }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="btn btn-primary" onClick={handlePreview} style={{ gap: 8 }}>
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ width: 16, height: 16 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              Previsualizar
+            </button>
+            <button className="btn btn-ghost" onClick={handleCopy} style={{ gap: 8 }}>
+              {copied ? (
+                <><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ width: 14, height: 14, color: 'var(--success)' }}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>¡Copiado!</>
+              ) : (
+                <><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ width: 14, height: 14 }}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copiar enlace</>
+              )}
+            </button>
+            <button className="btn btn-ghost" onClick={onClose}>Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function FormEditor({ setPage }) {
   const [formFields, setFormFields] = useState([])
   const [loading, setLoading] = useState(true)
-  const [saved, setSaved] = useState(false)
   const [error, setError] = useState(null)
   const [creating, setCreating] = useState(false)
-  const [newLink, setNewLink] = useState(null)
-  const [copiedNew, setCopiedNew] = useState(false)
+  const [successLink, setSuccessLink] = useState(null)
   const configured = isConfigured()
 
   useEffect(() => {
@@ -33,15 +89,12 @@ export default function FormEditor({ setPage }) {
   async function handleSaveAndCreate() {
     if (!configured) { setError('Error de conexión con la base de datos.'); return }
     setCreating(true)
-    setNewLink(null)
     setError(null)
     try {
       await saveFormConfig(formFields)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 5000)
       const id = genId()
       await saveSubmission({ id, createdAt: new Date().toISOString(), status: 'draft' })
-      setNewLink(getShareableLink('submission', id))
+      setSuccessLink(getShareableLink('submission', id))
     } catch (e) {
       setError('Error al guardar el formulario: ' + e.message)
     } finally {
@@ -49,17 +102,10 @@ export default function FormEditor({ setPage }) {
     }
   }
 
-  function handleCopyNew() {
-    navigator.clipboard.writeText(newLink)
-    setCopiedNew(true)
-    setTimeout(() => setCopiedNew(false), 2500)
-  }
-
   function handleFieldChange(index, key, value) {
     const updated = [...formFields]
     updated[index] = { ...updated[index], [key]: value }
     setFormFields(updated)
-    setSaved(false)
   }
 
   function handleAddField() {
@@ -68,7 +114,6 @@ export default function FormEditor({ setPage }) {
       ...prev,
       { key: newKey, label: 'Nueva pregunta', type: 'textarea', required: false, placeholder: '', hint: '', category: 'standard' }
     ])
-    setSaved(false)
   }
 
   function handleRemoveField(index) {
@@ -79,7 +124,6 @@ export default function FormEditor({ setPage }) {
     }
     if (!confirm(`¿Eliminar la pregunta "${field.label}"?`)) return
     setFormFields(prev => prev.filter((_, i) => i !== index))
-    setSaved(false)
   }
 
   function handleMove(index, direction) {
@@ -90,7 +134,6 @@ export default function FormEditor({ setPage }) {
     updated[index] = updated[targetIndex]
     updated[targetIndex] = temp
     setFormFields(updated)
-    setSaved(false)
   }
 
   return (
@@ -120,41 +163,8 @@ export default function FormEditor({ setPage }) {
 
       <div className="page-content" style={{ maxWidth: 800 }}>
 
-        {newLink && (
-          <div className="card" style={{ marginBottom: 28, borderLeft: '4px solid var(--xul-red)' }}>
-            <div className="card-body" style={{ padding: '20px 24px' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-                <div>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-heading)', marginBottom: 3 }}>
-                    ¡Formulario creado! Compartí el enlace
-                  </h4>
-                  <p style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>
-                    El destinatario lo rellena y envía. Aparecerá en <strong>Recibidos</strong> del Dashboard.
-                  </p>
-                </div>
-                <button onClick={() => setNewLink(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>✕</button>
-              </div>
-              <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-                <input
-                  type="text"
-                  readOnly
-                  value={newLink}
-                  onClick={e => e.target.select()}
-                  style={{ flex: 1, minWidth: 200, background: 'var(--bg)', fontFamily: 'monospace', fontSize: 12, cursor: 'text' }}
-                />
-                <button className="btn btn-primary btn-sm" onClick={handleCopyNew} style={{ gap: 6, flexShrink: 0 }}>
-                  {copiedNew ? (
-                    <><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ width: 13, height: 13 }}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>¡Copiado!</>
-                  ) : 'Copiar enlace'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 20 }}>Preguntas del formulario</h3>
 
-        {saved && <div className="alert alert-success">Formulario guardado con éxito</div>}
         {error && <div className="alert alert-error">{error}</div>}
 
         {loading ? (
@@ -222,10 +232,13 @@ export default function FormEditor({ setPage }) {
                 </div>
               )
             })}
-
           </div>
         )}
       </div>
+
+      {successLink && (
+        <SuccessModal link={successLink} onClose={() => setSuccessLink(null)} />
+      )}
     </>
   )
 }

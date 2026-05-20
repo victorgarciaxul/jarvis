@@ -25,8 +25,13 @@ export default function Layout({ page, setPage, children, user, onLogout }) {
       <aside className="sidebar">
         <div className="sidebar-logo">
           <h1>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, color: 'var(--xul-red)', flexShrink: 0 }}>
-              <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" />
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 22, height: 22, flexShrink: 0 }}>
+              <circle cx="20" cy="20" r="7" stroke="var(--xul-red)" strokeWidth="2.5" fill="none" />
+              <path d="M20 6 C28 6, 34 12, 34 20" stroke="var(--xul-red)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+              <path d="M34 20 C34 28, 28 34, 20 34" stroke="var(--xul-red)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+              <path d="M20 34 C12 34, 6 28, 6 20" stroke="var(--xul-red)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+              <path d="M6 20 C6 12, 12 6, 20 6" stroke="rgba(192,49,43,0.4)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 4" fill="none" />
+              <path d="M17 4.5 L20 6 L23 4.5" stroke="var(--xul-red)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
             </svg>
             <span>GIROS</span>
           </h1>
