@@ -289,12 +289,6 @@ export default function FormPage({ setPage, isPublic = false }) {
           <p>Cosecha de aprendizajes para GIROS</p>
         </div>
         <div className="btn-row" style={{ margin: 0 }}>
-          <button className="btn btn-ghost btn-sm" onClick={handleShareForm} style={{ gap: 6 }}>
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ width: 15, height: 15 }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742l-1.922-.641m0 0a3 3 0 10-2.28 4.302m0-4.302a3 3 0 002.28-4.302m1.922 6.224l1.922.641m0 0a3 3 0 102.28-4.302m-2.28 4.302a3 3 0 00-2.28 4.302" />
-            </svg>
-            Compartir Formulario
-          </button>
           {hasDraft && (
             <button className="btn btn-ghost btn-sm" onClick={handleNew}>
               Limpiar formulario
