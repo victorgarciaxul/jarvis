@@ -8,7 +8,6 @@ function genId() {
 export default function FormEditor({ setPage }) {
   const [formFields, setFormFields] = useState([])
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState(null)
   const [creating, setCreating] = useState(false)
@@ -31,15 +30,20 @@ export default function FormEditor({ setPage }) {
     loadFields()
   }, [])
 
-  async function handleCreateForm() {
+  async function handleSaveAndCreate() {
+    if (!configured) { setError('Error de conexión con la base de datos.'); return }
     setCreating(true)
     setNewLink(null)
+    setError(null)
     try {
+      await saveFormConfig(formFields)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 5000)
       const id = genId()
       await saveSubmission({ id, createdAt: new Date().toISOString(), status: 'draft' })
       setNewLink(getShareableLink('submission', id))
     } catch (e) {
-      setError('Error al crear el formulario: ' + e.message)
+      setError('Error al guardar el formulario: ' + e.message)
     } finally {
       setCreating(false)
     }
@@ -89,21 +93,6 @@ export default function FormEditor({ setPage }) {
     setSaved(false)
   }
 
-  async function handleSave() {
-    if (!configured) { setError('Error de conexión con la base de datos.'); return }
-    setSaving(true)
-    setError(null)
-    try {
-      await saveFormConfig(formFields)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
-    } catch (e) {
-      setError('Error al guardar el diseño del formulario: ' + e.message)
-    } finally {
-      setSaving(false)
-    }
-  }
-
   return (
     <>
       <div className="page-header">
@@ -112,13 +101,13 @@ export default function FormEditor({ setPage }) {
           <p>Creá un formulario y compartí el enlace para que te lo rellenen</p>
         </div>
         <div className="btn-row" style={{ margin: 0 }}>
-          <button className="btn btn-primary btn-sm" onClick={handleCreateForm} disabled={creating || loading} style={{ gap: 6 }}>
+          <button className="btn btn-primary btn-sm" onClick={handleSaveAndCreate} disabled={creating || loading} style={{ gap: 6 }}>
             {creating ? <span className="spinner" /> : (
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ width: 14, height: 14 }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
             )}
-            Crear formulario
+            Guardar formulario
           </button>
           <button className="btn btn-ghost btn-sm" onClick={handleAddField} disabled={loading} style={{ gap: 6 }}>
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ width: 14, height: 14 }}>
@@ -234,11 +223,6 @@ export default function FormEditor({ setPage }) {
               )
             })}
 
-            <div className="btn-row" style={{ marginTop: 12 }}>
-              <button className="btn btn-primary btn-lg" onClick={handleSave} disabled={saving}>
-                {saving ? <><span className="spinner" /> Guardando...</> : 'Guardar Diseño de Formulario'}
-              </button>
-            </div>
           </div>
         )}
       </div>
