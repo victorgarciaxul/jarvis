@@ -5,9 +5,9 @@ export const DEFAULT_FIELDS = [
   { key: 'nombre', label: 'Nombre y apellido', type: 'text', required: true, placeholder: 'Tu nombre completo', category: 'standard' },
   { key: 'proyecto', label: 'Proyecto', type: 'text', required: true, placeholder: 'Nombre del proyecto', category: 'standard' },
   { key: 'contexto', label: '¿Cuál fue la situación? (Contexto)', type: 'textarea', required: true, placeholder: 'Contanos brevemente qué pasó...', hint: 'Describí el contexto de la situación que querés analizar', category: 'standard' },
-  { key: 'luces', label: 'Luces', type: 'textarea', required: true, placeholder: 'Escribí los aciertos, lo que funcionó...', hint: '¿Qué salió bien? ¿Cuáles fueron las buenas prácticas?', category: 'luces' },
-  { key: 'sombras', label: 'Sombras', type: 'textarea', required: true, placeholder: 'Mencioná las dificultades, los desvíos...', hint: '¿Qué se podría haber hecho mejor? ¿Qué fallas o trabas hubo?', category: 'sombras' },
-  { key: 'comentarios', label: 'Comentarios, notas, ideas adicionales', type: 'textarea', required: false, placeholder: 'Cualquier otra observación...', hint: 'Opcional', category: 'standard' }
+  { key: 'luces', label: 'Luces ¿Qué hicieron bien?', type: 'textarea', required: true, placeholder: 'Escribí los aciertos, lo que funcionó...', hint: '¿Qué salió bien? ¿Cuáles fueron las buenas prácticas?', category: 'luces' },
+  { key: 'sombras', label: 'Sombras ¿Qué podrían haber hecho mejor?', type: 'textarea', required: true, placeholder: 'Mencioná las dificultades, los desvíos...', hint: '¿Qué se podría haber hecho mejor? ¿Qué fallas o trabas hubo?', category: 'sombras' },
+  { key: 'comentarios', label: 'Comentarios, notas, ideas', type: 'textarea', required: false, placeholder: 'Cualquier otra observación...', hint: 'Opcional', category: 'standard' }
 ]
 
 function getConfig() {
