@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { loadMedia, saveMedia, deleteMedia, isConfigured } from '../lib/github'
+import DatePicker from './DatePicker'
 
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
@@ -160,7 +161,7 @@ function UploadModal({ onSave, onClose }) {
           {/* Date */}
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label>Fecha <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(opcional)</span></label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ maxWidth: 200 }} />
+            <DatePicker value={date} onChange={setDate} placeholder="Seleccionar fecha" />
           </div>
 
           {/* Description */}
