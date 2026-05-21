@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { loadMedia, saveMedia, deleteMedia, isConfigured } from '../lib/github'
+import { loadMedia, saveMedia, deleteMedia, isConfigured, getShareableLink } from '../lib/github'
 import DatePicker from './DatePicker'
 
 function genId() {
@@ -191,6 +191,7 @@ function UploadModal({ onSave, onClose }) {
 // ── Player Modal ─────────────────────────────────────────────────────────────
 function PlayerModal({ item, onClose, onDelete }) {
   const [deleting, setDeleting] = useState(false)
+  const [copied, setCopied]     = useState(false)
 
   async function handleDelete() {
     if (!confirm(`¿Eliminar "${item.title}"?`)) return
@@ -202,6 +203,12 @@ function PlayerModal({ item, onClose, onDelete }) {
       alert('Error al eliminar: ' + e.message)
       setDeleting(false)
     }
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(getShareableLink('video', item.id))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
   }
 
   return (
@@ -222,6 +229,7 @@ function PlayerModal({ item, onClose, onDelete }) {
         <div className="modal-body" style={{ padding: 0 }}>
           <video
             src={item.videoData}
+            poster={item.thumbnail || undefined}
             controls
             autoPlay
             style={{ width: '100%', maxHeight: '60vh', background: '#000', display: 'block' }}
@@ -237,6 +245,13 @@ function PlayerModal({ item, onClose, onDelete }) {
           <button className="btn btn-danger btn-sm" onClick={handleDelete} disabled={deleting}>
             {deleting ? 'Eliminando...' : 'Eliminar'}
           </button>
+          <button className="btn btn-ghost btn-sm" onClick={handleCopy} style={{ marginLeft: 'auto', gap: 6 }}>
+            {copied ? (
+              <><svg fill="none" viewBox="0 0 24 24" stroke="var(--success)" strokeWidth={2.5} style={{ width: 13, height: 13 }}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>¡Copiado!</>
+            ) : (
+              <><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ width: 13, height: 13 }}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copiar enlace</>
+            )}
+          </button>
           <button className="btn btn-ghost btn-sm" onClick={onClose}>Cerrar</button>
         </div>
       </div>
@@ -246,6 +261,15 @@ function PlayerModal({ item, onClose, onDelete }) {
 
 // ── Media Card ───────────────────────────────────────────────────────────────
 function MediaCard({ item, onClick }) {
+  const [copied, setCopied] = useState(false)
+
+  function handleCopy(e) {
+    e.stopPropagation()
+    navigator.clipboard.writeText(getShareableLink('video', item.id))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+
   return (
     <div
       onClick={onClick}
@@ -268,19 +292,41 @@ function MediaCard({ item, onClick }) {
             </svg>
           </div>
         )}
-        {/* Play button overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(0,0,0,0.25)', opacity: 0, transition: 'opacity .15s',
-        }}
+        {/* Overlay: play + copy */}
+        <div
+          className="media-card-overlay"
+          style={{
+            position: 'absolute', inset: 0,
+            background: 'rgba(0,0,0,0.35)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            opacity: 0, transition: 'opacity .15s',
+          }}
           onMouseEnter={e => e.currentTarget.style.opacity = 1}
           onMouseLeave={e => e.currentTarget.style.opacity = 0}
         >
-          <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg fill="var(--xul-red)" viewBox="0 0 24 24" style={{ width: 22, height: 22, marginLeft: 3 }}>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}>
+            <svg fill="var(--xul-red)" viewBox="0 0 24 24" style={{ width: 24, height: 24, marginLeft: 3 }}>
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
+          {/* Copy link pill */}
+          <button
+            onClick={handleCopy}
+            style={{
+              position: 'absolute', bottom: 10, right: 10,
+              background: copied ? 'rgba(16,185,129,0.9)' : 'rgba(0,0,0,0.65)',
+              border: 'none', borderRadius: 20, padding: '5px 12px',
+              color: '#fff', fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5,
+              backdropFilter: 'blur(4px)', transition: 'background .2s',
+            }}
+          >
+            {copied ? (
+              <><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ width: 11, height: 11 }}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>¡Copiado!</>
+            ) : (
+              <><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ width: 11, height: 11 }}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copiar enlace</>
+            )}
+          </button>
         </div>
       </div>
 

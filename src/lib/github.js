@@ -133,6 +133,18 @@ export async function deleteMedia(id) {
   await sql`DELETE FROM media WHERE id = ${id}`
 }
 
+export async function getMediaById(id) {
+  await ensureTables()
+  const rows = await sql`SELECT * FROM media WHERE id = ${id}`
+  if (!rows.length) return null
+  const r = rows[0]
+  return {
+    id: r.id, title: r.title, recordedAt: r.recorded_at,
+    description: r.description, thumbnail: r.thumbnail,
+    videoData: r.video_data, videoName: r.video_name, createdAt: r.created_at,
+  }
+}
+
 export async function testConnection() {
   const rows = await sql`SELECT NOW() AS now`
   return { ok: true, time: rows[0].now }
@@ -142,5 +154,6 @@ export function getShareableLink(type, id = null) {
   const base = `${window.location.origin}${window.location.pathname}`
   if (type === 'form') return `${base}?fill=true`
   if (type === 'submission' && id) return `${base}?id=${id}`
+  if (type === 'video' && id) return `${base}?video=${id}`
   return base
 }

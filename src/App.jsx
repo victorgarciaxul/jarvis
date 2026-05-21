@@ -7,6 +7,7 @@ import Settings from './components/Settings'
 import SharedView from './components/SharedView'
 import LoginPage from './components/LoginPage'
 import Media from './components/Media'
+import VideoView from './components/VideoView'
 
 const SESSION_KEY = 'giros_session'
 
@@ -20,10 +21,14 @@ export default function App() {
     const p = new URLSearchParams(window.location.search)
     if (p.get('fill') === 'true') return 'form'
     if (p.get('id')) return 'shared'
+    if (p.get('video')) return 'video'
     return 'dashboard'
   })
   const [sharedId, setSharedId] = useState(() => {
     return new URLSearchParams(window.location.search).get('id') || null
+  })
+  const [videoId] = useState(() => {
+    return new URLSearchParams(window.location.search).get('video') || null
   })
   const [isPublicForm, setIsPublicForm] = useState(() => {
     return new URLSearchParams(window.location.search).get('fill') === 'true'
@@ -39,6 +44,8 @@ export default function App() {
     setUser(null)
   }
 
+
+  if (videoId) return <VideoView id={videoId} />
 
   if (!user && !isPublicForm && !sharedId) {
     return <LoginPage onLogin={handleLogin} />
